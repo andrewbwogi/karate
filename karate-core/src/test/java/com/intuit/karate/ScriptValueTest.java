@@ -42,6 +42,7 @@ public class ScriptValueTest {
    
     @Test
     public void testTypeDetection() {
+        CoverageStructure.setCoverageStructure("ScriptValue:getAsString",12);
         DocumentContext doc = JsonPath.parse("{ foo: 'bar' }");
         ScriptValue sv = new ScriptValue(doc);
         assertEquals(JSON, sv.getType());

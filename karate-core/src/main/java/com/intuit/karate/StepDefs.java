@@ -485,21 +485,64 @@ public class StepDefs {
         boolean notEquals = eqSymbol.startsWith("!");
         if (each == null) {
             if (notContains != null) {
+                CoverageStructure.addBranch(1);
                 return MatchType.NOT_CONTAINS;
             }
             if (only != null) {
-                return only.contains("only") ? MatchType.CONTAINS_ONLY: MatchType.CONTAINS_ANY;
+                return only.contains("only") ? containsOnly(): containsAny();
             }
-            return contains ? MatchType.CONTAINS : notEquals ? MatchType.NOT_EQUALS : MatchType.EQUALS;
+            return contains ? contains() : notEquals ? notEquals() : equals();
         } else {
             if (notContains != null) {
+                CoverageStructure.addBranch(2);
                 return MatchType.EACH_NOT_CONTAINS;
             }
             if (only != null) {
-                return only.contains("only") ? MatchType.EACH_CONTAINS_ONLY: MatchType.EACH_CONTAINS_ANY;
+                return only.contains("only") ? eachContainsOnly(): eachContainsAny();
             }
-            return contains ? MatchType.EACH_CONTAINS : notEquals ? MatchType.EACH_NOT_EQUALS : MatchType.EACH_EQUALS;
+            return contains ? eachContains() : notEquals ? eachNotEquals() : eachEquals();
         }
+    }
+
+    private static MatchType containsOnly(){
+        CoverageStructure.addBranch(3);
+        return MatchType.CONTAINS_ONLY;
+    }
+    private static MatchType containsAny(){
+        CoverageStructure.addBranch(4);
+        return MatchType.CONTAINS_ANY;
+    }
+    private static MatchType contains(){
+        CoverageStructure.addBranch(5);
+        return MatchType.CONTAINS;
+    }
+    private static MatchType notEquals(){
+        CoverageStructure.addBranch(6);
+        return MatchType.NOT_EQUALS;
+    }
+    private static MatchType equals(){
+        CoverageStructure.addBranch(7);
+        return MatchType.EQUALS;
+    }
+    private static MatchType eachContainsOnly(){
+        CoverageStructure.addBranch(8);
+        return MatchType.EACH_CONTAINS_ONLY;
+    }
+    private static MatchType eachContainsAny(){
+        CoverageStructure.addBranch(9);
+        return MatchType.EACH_CONTAINS_ANY;
+    }
+    private static MatchType eachContains(){
+        CoverageStructure.addBranch(10);
+        return MatchType.EACH_CONTAINS;
+    }
+    private static MatchType eachNotEquals(){
+        CoverageStructure.addBranch(11);
+        return MatchType.EACH_NOT_EQUALS;
+    }
+    private static MatchType eachEquals(){
+        CoverageStructure.addBranch(12);
+        return MatchType.EACH_EQUALS;
     }
 
     private static void validateEqualsSign(String eqSymbol) {

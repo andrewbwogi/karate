@@ -59,6 +59,7 @@ public class JsonUtilsTest {
 
     @Test
     public void testSetByPath() {
+        CoverageStructure.setCoverageStructure("JsonUtils:setValueByPath", 19);
         String raw = "{ foo: 'bar' }";
         DocumentContext doc = JsonUtils.toJsonDoc(raw);
         JsonUtils.setValueByPath(doc, "$.foo", "baz");
@@ -88,6 +89,7 @@ public class JsonUtilsTest {
         doc = JsonUtils.toJsonDoc("[]");
         JsonUtils.setValueByPath(doc, "$[0].foo.bar", 1);
         assertEquals("[{\"foo\":{\"bar\":1}}]", doc.jsonString());
+        CoverageStructure.printBranches();
     }
 
     @Test

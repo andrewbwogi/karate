@@ -238,19 +238,24 @@ public class JsonUtils {
     }
 
     public static void setValueByPath(DocumentContext doc, String path, Object value, boolean remove) {
+        CoverageStructure.addBranch(1);
         if ("$".equals(path)) {
+            CoverageStructure.addBranch(2);
             throw new RuntimeException("cannot replace root path $");
         }
         StringUtils.Pair pathLeaf = getParentAndLeafPath(path);
         String left = pathLeaf.left;
         String right = pathLeaf.right;
         if (right.endsWith("]") && !right.endsWith("']")) { // json array
+            CoverageStructure.addBranch(3);
             int indexPos = right.lastIndexOf('[');
             int index = -1; // append, for case 'foo[]' (no integer, empty brackets)
             if (right.length() != indexPos + 1) {
+                CoverageStructure.addBranch(4);
                 try {
                     index = Integer.valueOf(right.substring(indexPos + 1, right.length() - 1));
                 } catch (Exception e) {
+                    CoverageStructure.addBranch(5);
                     // index will be -1, default to append
                 }
             }
@@ -258,30 +263,40 @@ public class JsonUtils {
             List list;
             String listPath;
             if (right.startsWith("[")) {
+                CoverageStructure.addBranch(6);
                 listPath = left + right;
             } else {
                 if ("".equals(left)) { // special case, root array
+                    CoverageStructure.addBranch(7);
                     listPath = right;
                 } else {
+                    CoverageStructure.addBranch(8);
                     listPath = left + "." + right;
                 }
             }
             try {
                 list = doc.read(listPath);
                 if (index == -1) {
+                    CoverageStructure.addBranch(9);
                     index = list.size();
                 }
                 if (index < list.size()) {
+                    CoverageStructure.addBranch(10);
                     if (remove) {
+                        CoverageStructure.addBranch(11);
                         list.remove(index);
                     } else {
+                        CoverageStructure.addBranch(12);
                         list.set(index, value);
                     }
                 } else if (!remove) {
+                    CoverageStructure.addBranch(13);
                     list.add(value);
                 }
             } catch (Exception e) { // path does not exist or null
+                CoverageStructure.addBranch(14);
                 if (!remove) {
+                    CoverageStructure.addBranch(15);
                     list = new ArrayList();
                     list.add(value);
                     doc.put(left, right, list);
@@ -289,12 +304,16 @@ public class JsonUtils {
             }
         } else {
             if (remove) {
+                CoverageStructure.addBranch(16);
                 doc.delete(path);
             } else {
+                CoverageStructure.addBranch(17);
                 if (right.startsWith("[")) {
+                    CoverageStructure.addBranch(18);
                     right = right.substring(2, right.length() - 2);
                 }
                 if (!pathExists(doc, left)) {
+                    CoverageStructure.addBranch(19);
                     createParents(doc, left);
                 }
                 doc.put(left, right, value);

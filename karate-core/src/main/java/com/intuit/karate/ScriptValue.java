@@ -296,34 +296,46 @@ public class ScriptValue {
     public String getAsString() {
         switch (type) {
             case NULL:
+                CoverageStructure.addBranch(1);
                 return null;
             case JSON:
+                CoverageStructure.addBranch(2);
                 DocumentContext doc = getValue(DocumentContext.class);
                 return doc.jsonString();
             case XML:
                 Node node = getValue(Node.class);
                 if (node.getTextContent() != null) { // for attributes, text() etc
+                    CoverageStructure.addBranch(3);
                     return node.getTextContent();
                 } else {
+                    CoverageStructure.addBranch(4);
                     return XmlUtils.toString(node);
                 }
             case JS_ARRAY:
+                CoverageStructure.addBranch(11);
             case LIST:
+                CoverageStructure.addBranch(5);
                 List list = getAsList();
                 DocumentContext listDoc = JsonPath.parse(list);
                 return listDoc.jsonString();
             case JS_OBJECT:
+                CoverageStructure.addBranch(12);
             case MAP:
+                CoverageStructure.addBranch(6);
                 Map map = getAsMap();
                 DocumentContext mapDoc = JsonPath.parse(map);
                 return mapDoc.jsonString();
             case JS_FUNCTION:
+                CoverageStructure.addBranch(7);
                 return value.toString().replace("\n", " ");
             case BYTE_ARRAY:
+                CoverageStructure.addBranch(8);
                 return FileUtils.toString(getValue(byte[].class));
             case INPUT_STREAM:
+                CoverageStructure.addBranch(9);
                 return FileUtils.toString(getValue(InputStream.class));
             default:
+                CoverageStructure.addBranch(10);
                 return value.toString();
         }
     }

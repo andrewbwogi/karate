@@ -174,48 +174,59 @@ public class ScriptContext {
     public void configure(String key, ScriptValue value) { // TODO use enum
         key = StringUtils.trimToEmpty(key);
         if (key.equals("headers")) {
+            CoverageStructure.addBranch(1,2);
             config.setHeaders(value);
             return;
         }
         if (key.equals("cookies")) {
+            CoverageStructure.addBranch(1,2);
             config.setCookies(value);
             return;
         }
         if (key.equals("responseHeaders")) {
+            CoverageStructure.addBranch(1,2);
             config.setResponseHeaders(value);
             return;
         }
         if (key.equals("cors")) {
+            CoverageStructure.addBranch(1,2);
             config.setCorsEnabled(value.isBooleanTrue());
             return;
         }
         if (key.equals("logPrettyResponse")) {
+            CoverageStructure.addBranch(1,2);
             config.setLogPrettyResponse(value.isBooleanTrue());
             return;
         }
         if (key.equals("logPrettyRequest")) {
+            CoverageStructure.addBranch(1,2);
             config.setLogPrettyRequest(value.isBooleanTrue());
             return;
         }
         if (key.equals("printEnabled")) {
+            CoverageStructure.addBranch(1,2);
             config.setPrintEnabled(value.isBooleanTrue());
             return;
         }
         if (key.equals("afterScenario")) {
+            CoverageStructure.addBranch(1,2);
             config.setAfterScenario(value);
             return;
         }
         if (key.equals("afterFeature")) {
+            CoverageStructure.addBranch(1,2);
             config.setAfterFeature(value);
             return;
         }
         if (key.equals("httpClientClass")) {
+            CoverageStructure.addBranch(1,2);
             config.setClientClass(value.getAsString());
             // re-construct all the things ! and we exit early
             client = HttpClient.construct(config, this);
             return;
         }
         if (key.equals("httpClientInstance")) {
+            CoverageStructure.addBranch(1,2);
             config.setClientInstance(value.getValue(HttpClient.class));
             // here too, re-construct client - and exit early
             client = HttpClient.construct(config, this);
@@ -223,8 +234,10 @@ public class ScriptContext {
         }
         if (key.equals("charset")) {
             if (value.isNull()) {
+                CoverageStructure.addBranch(1,2);
                 config.setCharset(null);
             } else {
+                CoverageStructure.addBranch(1,2);
                 config.setCharset(Charset.forName(value.getAsString()));
             }
             // here again, re-construct client - and exit early
@@ -233,10 +246,13 @@ public class ScriptContext {
         }
         // beyond this point, we don't exit early and we have to re-configure the http client
         if (key.equals("ssl")) {
+            CoverageStructure.addBranch(1,2);
             if (value.isString()) {
+                CoverageStructure.addBranch(1,2);
                 config.setSslEnabled(true);
                 config.setSslAlgorithm(value.getAsString());
             } else if (value.isMapLike()) {
+                CoverageStructure.addBranch(1,2);
                 config.setSslEnabled(true);
                 Map<String, Object> map = value.getAsMap();
                 config.setSslKeyStore((String) map.get("keyStore"));
@@ -247,30 +263,40 @@ public class ScriptContext {
                 config.setSslTrustStoreType((String) map.get("trustStoreType"));
                 String trustAll = (String) map.get("trustAll");
                 if (trustAll != null) {
+                    CoverageStructure.addBranch(1,2);
                     config.setSslTrustAll(Boolean.valueOf(trustAll));
                 }
                 config.setSslAlgorithm((String) map.get("algorithm"));
             } else {
+                CoverageStructure.addBranch(1,2);
                 config.setSslEnabled(value.isBooleanTrue());
             }
         } else if (key.equals("followRedirects")) {
+            CoverageStructure.addBranch(1,2);
             config.setFollowRedirects(value.isBooleanTrue());
         } else if (key.equals("connectTimeout")) {
+            CoverageStructure.addBranch(1,2);
             config.setConnectTimeout(Integer.valueOf(value.getAsString()));
         } else if (key.equals("readTimeout")) {
+            CoverageStructure.addBranch(1,2);
             config.setReadTimeout(Integer.valueOf(value.getAsString()));
         } else if (key.equals("proxy")) {
+            CoverageStructure.addBranch(1,2);
             if (value.isString()) {
+                CoverageStructure.addBranch(1,2);
                 config.setProxyUri(value.getAsString());
             } else {
+                CoverageStructure.addBranch(1,2);
                 Map<String, Object> map = value.getAsMap();
                 config.setProxyUri((String) map.get("uri"));
                 config.setProxyUsername((String) map.get("username"));
                 config.setProxyPassword((String) map.get("password"));
             }
         } else if (key.equals("userDefined")) {
+            CoverageStructure.addBranch(1,2);
             config.setUserDefined(value.getAsMap());
         } else {
+            CoverageStructure.addBranch(1,2);
             throw new RuntimeException("unexpected 'configure' key: '" + key + "'");
         }
         client.configure(config, this);

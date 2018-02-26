@@ -485,7 +485,7 @@ public class StepDefs {
         boolean notEquals = eqSymbol.startsWith("!");
         if (each == null) {
             if (notContains != null) {
-                CoverageStructure.addBranch(1);
+                CoverageStructure.addBranch(1,1);
                 return MatchType.NOT_CONTAINS;
             }
             if (only != null) {
@@ -494,7 +494,7 @@ public class StepDefs {
             return contains ? contains() : notEquals ? notEquals() : equals();
         } else {
             if (notContains != null) {
-                CoverageStructure.addBranch(2);
+                CoverageStructure.addBranch(2,1);
                 return MatchType.EACH_NOT_CONTAINS;
             }
             if (only != null) {
@@ -505,43 +505,43 @@ public class StepDefs {
     }
 
     private static MatchType containsOnly(){
-        CoverageStructure.addBranch(3);
+        CoverageStructure.addBranch(3,1);
         return MatchType.CONTAINS_ONLY;
     }
     private static MatchType containsAny(){
-        CoverageStructure.addBranch(4);
+        CoverageStructure.addBranch(4,1);
         return MatchType.CONTAINS_ANY;
     }
     private static MatchType contains(){
-        CoverageStructure.addBranch(5);
+        CoverageStructure.addBranch(5,1);
         return MatchType.CONTAINS;
     }
     private static MatchType notEquals(){
-        CoverageStructure.addBranch(6);
+        CoverageStructure.addBranch(6,1);
         return MatchType.NOT_EQUALS;
     }
     private static MatchType equals(){
-        CoverageStructure.addBranch(7);
+        CoverageStructure.addBranch(7,1);
         return MatchType.EQUALS;
     }
     private static MatchType eachContainsOnly(){
-        CoverageStructure.addBranch(8);
+        CoverageStructure.addBranch(8,1);
         return MatchType.EACH_CONTAINS_ONLY;
     }
     private static MatchType eachContainsAny(){
-        CoverageStructure.addBranch(9);
+        CoverageStructure.addBranch(9,1);
         return MatchType.EACH_CONTAINS_ANY;
     }
     private static MatchType eachContains(){
-        CoverageStructure.addBranch(10);
+        CoverageStructure.addBranch(10,1);
         return MatchType.EACH_CONTAINS;
     }
     private static MatchType eachNotEquals(){
-        CoverageStructure.addBranch(11);
+        CoverageStructure.addBranch(11,1);
         return MatchType.EACH_NOT_EQUALS;
     }
     private static MatchType eachEquals(){
-        CoverageStructure.addBranch(12);
+        CoverageStructure.addBranch(12,1);
         return MatchType.EACH_EQUALS;
     }
 

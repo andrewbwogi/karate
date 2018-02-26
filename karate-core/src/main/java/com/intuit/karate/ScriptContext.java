@@ -115,14 +115,17 @@ public class ScriptContext {
         tagValues = call.getTagValues();
         scenarioInfo = call.getScenarioInfo();
         if (call.reuseParentContext) {
+            CoverageStructure.addBranch(2,3);
             vars = call.parentContext.vars; // shared context !
             validators = call.parentContext.validators;
             config = call.parentContext.config;
         } else if (call.parentContext != null) {
+            CoverageStructure.addBranch(3,3);
             vars = call.parentContext.vars.copy();
             validators = call.parentContext.validators;
             config = new HttpConfig(call.parentContext.config);
         } else {
+            CoverageStructure.addBranch(4,3);
             vars = new ScriptValueMap();
             validators = Validator.getDefaults();
             config = new HttpConfig();
@@ -131,31 +134,38 @@ public class ScriptContext {
         client = HttpClient.construct(config, this);
         bindings = new ScriptBindings(this);
         if (call.parentContext == null && call.evalKarateConfig) {
+            CoverageStructure.addBranch(5,3);
             try {
                 String configScript;
                 String configPath = System.getProperty(ScriptBindings.KARATE_CONFIG);
                 if (configPath != null) { // over-ridden by user or command-line / stand-alone jar
+                    CoverageStructure.addBranch(6,3);
                     File configFile = new File(configPath);
                     configScript = String.format("%s('%s')", ScriptBindings.READ, FileUtils.FILE_COLON + configFile.getPath());
                 } else {
+                    CoverageStructure.addBranch(7,3);
                     configScript = ScriptBindings.READ_KARATE_CONFIG;
                 }
                 Script.callAndUpdateConfigAndAlsoVarsIfMapReturned(false, configScript, null, this);
             } catch (Exception e) {
                 if (e instanceof KarateFileNotFoundException) {
+                    CoverageStructure.addBranch(8,3);
                     logger.warn("skipping bootstrap configuration: {}", e.getMessage());
                 } else {
+                    CoverageStructure.addBranch(9,3);
                     throw new RuntimeException("evaluation of " + ScriptBindings.KARATE_CONFIG_JS + " failed:", e);
                 }
             }
         }
         if (call.callArg != null) { // if call.reuseParentContext is true, arg will clobber parent context
+            CoverageStructure.addBranch(10,3);
             for (Map.Entry<String, Object> entry : call.callArg.entrySet()) {
                 vars.put(entry.getKey(), entry.getValue());
             }
             vars.put(Script.VAR_ARG, call.callArg);
             vars.put(Script.VAR_LOOP, call.loopIndex);
         } else if (call.parentContext != null) {
+            CoverageStructure.addBranch(1,3);
             vars.put(Script.VAR_ARG, ScriptValue.NULL);
             vars.put(Script.VAR_LOOP, -1);
         }
@@ -179,54 +189,54 @@ public class ScriptContext {
             return;
         }
         if (key.equals("cookies")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(2,2);
             config.setCookies(value);
             return;
         }
         if (key.equals("responseHeaders")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(3,2);
             config.setResponseHeaders(value);
             return;
         }
         if (key.equals("cors")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(4,2);
             config.setCorsEnabled(value.isBooleanTrue());
             return;
         }
         if (key.equals("logPrettyResponse")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(5,2);
             config.setLogPrettyResponse(value.isBooleanTrue());
             return;
         }
         if (key.equals("logPrettyRequest")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(6,2);
             config.setLogPrettyRequest(value.isBooleanTrue());
             return;
         }
         if (key.equals("printEnabled")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(7,2);
             config.setPrintEnabled(value.isBooleanTrue());
             return;
         }
         if (key.equals("afterScenario")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(8,2);
             config.setAfterScenario(value);
             return;
         }
         if (key.equals("afterFeature")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(9,2);
             config.setAfterFeature(value);
             return;
         }
         if (key.equals("httpClientClass")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(10,2);
             config.setClientClass(value.getAsString());
             // re-construct all the things ! and we exit early
             client = HttpClient.construct(config, this);
             return;
         }
         if (key.equals("httpClientInstance")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(11,2);
             config.setClientInstance(value.getValue(HttpClient.class));
             // here too, re-construct client - and exit early
             client = HttpClient.construct(config, this);
@@ -234,10 +244,10 @@ public class ScriptContext {
         }
         if (key.equals("charset")) {
             if (value.isNull()) {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(12,2);
                 config.setCharset(null);
             } else {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(13,2);
                 config.setCharset(Charset.forName(value.getAsString()));
             }
             // here again, re-construct client - and exit early
@@ -246,13 +256,12 @@ public class ScriptContext {
         }
         // beyond this point, we don't exit early and we have to re-configure the http client
         if (key.equals("ssl")) {
-            CoverageStructure.addBranch(1,2);
             if (value.isString()) {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(14,2);
                 config.setSslEnabled(true);
                 config.setSslAlgorithm(value.getAsString());
             } else if (value.isMapLike()) {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(15,2);
                 config.setSslEnabled(true);
                 Map<String, Object> map = value.getAsMap();
                 config.setSslKeyStore((String) map.get("keyStore"));
@@ -263,40 +272,39 @@ public class ScriptContext {
                 config.setSslTrustStoreType((String) map.get("trustStoreType"));
                 String trustAll = (String) map.get("trustAll");
                 if (trustAll != null) {
-                    CoverageStructure.addBranch(1,2);
+                    CoverageStructure.addBranch(16,2);
                     config.setSslTrustAll(Boolean.valueOf(trustAll));
                 }
                 config.setSslAlgorithm((String) map.get("algorithm"));
             } else {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(17,2);
                 config.setSslEnabled(value.isBooleanTrue());
             }
         } else if (key.equals("followRedirects")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(18,2);
             config.setFollowRedirects(value.isBooleanTrue());
         } else if (key.equals("connectTimeout")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(19,2);
             config.setConnectTimeout(Integer.valueOf(value.getAsString()));
         } else if (key.equals("readTimeout")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(20,2);
             config.setReadTimeout(Integer.valueOf(value.getAsString()));
         } else if (key.equals("proxy")) {
-            CoverageStructure.addBranch(1,2);
             if (value.isString()) {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(21,2);
                 config.setProxyUri(value.getAsString());
             } else {
-                CoverageStructure.addBranch(1,2);
+                CoverageStructure.addBranch(22,2);
                 Map<String, Object> map = value.getAsMap();
                 config.setProxyUri((String) map.get("uri"));
                 config.setProxyUsername((String) map.get("username"));
                 config.setProxyPassword((String) map.get("password"));
             }
         } else if (key.equals("userDefined")) {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(23,2);
             config.setUserDefined(value.getAsMap());
         } else {
-            CoverageStructure.addBranch(1,2);
+            CoverageStructure.addBranch(24,2);
             throw new RuntimeException("unexpected 'configure' key: '" + key + "'");
         }
         client.configure(config, this);

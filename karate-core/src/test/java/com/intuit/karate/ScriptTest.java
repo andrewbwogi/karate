@@ -60,6 +60,20 @@ public class ScriptTest {
         value = Script.evalJsExpression("a + b", ctx);
         assertEquals(ScriptValue.Type.PRIMITIVE, value.getType());
         assertEquals(3.0, value.getValue());
+        assertTrue(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "'barbaz'", ctx).pass);
+
+    }
+
+    @Test
+    public void testEvalStrings() {
+        ScriptContext ctx = getContext();
+        ctx.vars.put("c", "string");
+        ScriptValue value = Script.evalJsExpression("c", ctx);
+
+        assertTrue(Script.matchJsonOrObject(MatchType.EQUALS, value, "$", "'string'", ctx).pass);
+        assertTrue(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "'string-wrong'", ctx).pass);
+
+        assertFalse(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "1 + 2", ctx).pass);
     }
 
     @Test
@@ -427,7 +441,7 @@ public class ScriptTest {
         Script.assign("json", "[{ foo: 'bar'}, { foo: 'baz' }]", ctx);
         assertFalse(Script.matchNamed(MatchType.NOT_EQUALS, "json", null, "[{ foo: 'bar'}, { foo: 'baz' }]", ctx).pass);
         assertTrue(Script.matchNamed(MatchType.NOT_EQUALS, "json", null, "[{ foo: 'bar'}, { foo: 'blah' }]", ctx).pass);
-        assertTrue(Script.matchNamed(MatchType.NOT_CONTAINS, "json", null, "{ foo: 'blah' }", ctx).pass);        
+        assertTrue(Script.matchNamed(MatchType.NOT_CONTAINS, "json", null, "{ foo: 'blah' }", ctx).pass);
     }    
 
     @Test

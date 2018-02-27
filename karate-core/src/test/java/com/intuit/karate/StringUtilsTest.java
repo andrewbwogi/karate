@@ -62,5 +62,10 @@ public class StringUtilsTest {
         assertEquals("a,b", StringUtils.join(foo, ','));
         assertEquals("a,b", StringUtils.join(Arrays.asList(foo), ','));
     }
+
+    @Test
+    public void testRepeat() {
+        assertEquals("aaa", StringUtils.repeat('a', 3));
+    }
     
 }

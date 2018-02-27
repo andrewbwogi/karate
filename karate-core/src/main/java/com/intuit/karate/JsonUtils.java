@@ -86,7 +86,7 @@ public class JsonUtils {
 
     }
 
-    static { 
+    static {
         // prevent things like the karate script bridge getting serialized (especially in the javafx ui)
         JSONValue.registerWriter(ScriptObjectMirror.class, new NashornObjectJsonWriter());
         JSONValue.registerWriter(FeatureWrapper.class, new FeatureWrapperJsonWriter());
@@ -164,14 +164,19 @@ public class JsonUtils {
     }
 
     private static void recursePretty(Object o, StringBuilder sb, int depth, Set<Object> seen) {
+        final CoverageStructure cs = new CoverageStructure("JsonUtils", "recursePretty", 11);
         if (o == null) {
+            cs.addBranch(0);
             sb.append("null");
         } else if (o instanceof Map) {
+            cs.addBranch(1);
             if (seen.add(o)) {
+                cs.addBranch(2);
                 sb.append('{').append('\n');
                 Map<String, Object> map = (Map<String, Object>) o;
                 Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
                 while (iterator.hasNext()) {
+                    cs.addBranch(3);
                     Map.Entry<String, Object> entry = iterator.next();
                     String key = entry.getKey();
                     pad(sb, depth + 1);
@@ -186,14 +191,18 @@ public class JsonUtils {
                 pad(sb, depth);
                 sb.append('}');
             } else {
+                cs.addBranch(4);
                 ref(sb, o);
             }
         } else if (o instanceof List) {
+            cs.addBranch(5);
             List list = (List) o;
             Iterator iterator = list.iterator();
             if (seen.add(o)) {
+                cs.addBranch(6);
                 sb.append('[').append('\n');
                 while (iterator.hasNext()) {
+                    cs.addBranch(7);
                     Object child = iterator.next();
                     pad(sb, depth + 1);
                     recursePretty(child, sb, depth + 1, seen);
@@ -205,14 +214,18 @@ public class JsonUtils {
                 pad(sb, depth);
                 sb.append(']');
             } else {
+                cs.addBranch(8);
                 ref(sb, o);
             }
         } else if (o instanceof String) {
+            cs.addBranch(9);
             String value = (String) o;
             sb.append('"').append(JSONValue.escape(value, JSONStyle.LT_COMPRESS)).append('"');
         } else {
+            cs.addBranch(10);
             sb.append(o);
         }
+        //cs.printBranches();
     }
 
     public static StringUtils.Pair getParentAndLeafPath(String path) {

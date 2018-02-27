@@ -113,10 +113,10 @@ public class Script {
     public static final boolean isContainsOnlyMacro(String text) {
         return text.startsWith("^^");
     }
-    
+
     public static final boolean isContainsAnyMacro(String text) {
         return text.startsWith("^*");
-    }    
+    }
 
     public static final boolean isNotContainsMacro(String text) {
         return text.startsWith("!^");
@@ -188,7 +188,7 @@ public class Script {
     public static ScriptValue getIfVariableReference(String text, ScriptContext context) {
         if (isVariable(text)) {
             // don't re-evaluate if this is clearly a direct reference to a variable
-            // this avoids un-necessary conversion of xml into a map in some cases 
+            // this avoids un-necessary conversion of xml into a map in some cases
             // e.g. 'Given request foo' - where foo is a ScriptValue of type XML
             ScriptValue value = context.vars.get(text);
             if (value != null) {
@@ -411,7 +411,7 @@ public class Script {
                         if (forMatch || sv.isNull()) {
                             root.delete(path);
                         } else if (!sv.isJsonLike()) {
-                            // only substitute primitives ! 
+                            // only substitute primitives !
                             // preserve optional JSON chunk schema-like references as-is, they are needed for future match attempts
                             root.set(path, sv.getValue());
                         }
@@ -674,8 +674,8 @@ public class Script {
                 if ("$".equals(path)) {
                     path = "/"; // whole document, also edge case where variable name was 'response'
                 }
-            // break; 
-            // fall through to JSON. yes, dot notation can be used on XML !!
+                // break;
+                // fall through to JSON. yes, dot notation can be used on XML !!
             default:
                 if (isDollarPrefixed(path)) {
                     return matchJsonOrObject(matchType, actual, path, expected, context);
@@ -708,7 +708,7 @@ public class Script {
     }
 
     public static AssertionResult matchStringOrPattern(char delimiter, String path, MatchType stringMatchType,
-            Object actRoot, Object actParent, ScriptValue actValue, String expected, ScriptContext context) {
+                                                       Object actRoot, Object actParent, ScriptValue actValue, String expected, ScriptContext context) {
         if (expected == null) {
             if (!actValue.isNull()) {
                 if (stringMatchType == MatchType.NOT_EQUALS) {
@@ -719,7 +719,7 @@ public class Script {
             }
         } else if (isMacro(expected)) {
             String macroExpression;
-            if (isOptionalMacro(expected)) {              
+            if (isOptionalMacro(expected)) {
                 macroExpression = expected.substring(2); // this is used later to look up validators by name
                 if (actValue.isNull()) {
                     boolean isEqual;
@@ -734,16 +734,16 @@ public class Script {
                         if (stringMatchType == MatchType.NOT_EQUALS) {
                             return matchFailed(stringMatchType, path, actValue.getValue(), expected, "actual value is null");
                         } else {
-                            return AssertionResult.PASS;                            
-                        }                          
+                            return AssertionResult.PASS;
+                        }
                     } else {
                         if (stringMatchType == MatchType.NOT_EQUALS) {
                             return AssertionResult.PASS;
                         } else {
                             return matchFailed(stringMatchType, path, actValue.getValue(), expected, "actual value is null");
-                        }                         
+                        }
                     }
-                }                 
+                }
             } else {
                 macroExpression = expected.substring(1); // // this is used later to look up validators by name
             }
@@ -757,7 +757,7 @@ public class Script {
                         macroExpression = macroExpression.substring(2);
                     } else if (isContainsAnyMacro(macroExpression)) {
                         matchType = MatchType.CONTAINS_ANY;
-                        macroExpression = macroExpression.substring(2);                        
+                        macroExpression = macroExpression.substring(2);
                     } else {
                         matchType = MatchType.CONTAINS;
                         macroExpression = macroExpression.substring(1);
@@ -769,7 +769,7 @@ public class Script {
                     isContains = false;
                 }
                 ScriptValue expValue = evalJsExpression(macroExpression, context, actValue, actRoot, actParent);
-                if (isContains && actValue.isListLike() && !expValue.isListLike()) { // if RHS is not list, make it so for contains                    
+                if (isContains && actValue.isListLike() && !expValue.isListLike()) { // if RHS is not list, make it so for contains
                     expValue = new ScriptValue(Collections.singletonList(expValue.getValue()));
                 }
                 AssertionResult ar = matchNestedObject(delimiter, path, matchType, actRoot, actParent, actValue.getValue(), expValue.getValue(), context);
@@ -805,9 +805,9 @@ public class Script {
                     int arrayLength = actValueList.size();
                     String bracketContents = macroExpression.substring(1, endBracketPos);
                     String expression;
-                    if (bracketContents.indexOf('_') != -1) { // #[_ < 5]  
+                    if (bracketContents.indexOf('_') != -1) { // #[_ < 5]
                         expression = bracketContents;
-                    } else { // #[5] | #[$.foo] 
+                    } else { // #[5] | #[$.foo]
                         expression = bracketContents + " == " + arrayLength;
                     }
                     ScriptValue result = evalJsExpression(expression, context, new ScriptValue(arrayLength), actRoot, actParent);
@@ -839,7 +839,7 @@ public class Script {
                                     expression = expression.substring(2);
                                 } else if (isContainsAnyMacro(expression)) {
                                     matchType = MatchType.EACH_CONTAINS_ANY;
-                                    expression = expression.substring(2);                                    
+                                    expression = expression.substring(2);
                                 } else {
                                     matchType = MatchType.EACH_CONTAINS;
                                     expression = expression.substring(1);
@@ -849,7 +849,7 @@ public class Script {
                                 expression = expression.substring(2);
                             }
                         }
-                        // actRoot assumed to be json in this case                        
+                        // actRoot assumed to be json in this case
                         return matchJsonOrObject(matchType, new ScriptValue(actRoot), path, expression, context);
                     }
                 }
@@ -945,11 +945,11 @@ public class Script {
         ScriptValue expected = evalKarateExpression(expression, context);
         if (actual.isNull()) {
             return matchFailed(matchType, path, null, expected.getValue(), "actual xpath returned null");
-        }        
+        }
         Object actObject;
         Object expObject;
         switch (expected.getType()) {
-            case XML: // convert to map and then compare               
+            case XML: // convert to map and then compare
                 Node expNode = expected.getValue(Node.class);
                 expObject = XmlUtils.toObject(expNode);
                 actObject = XmlUtils.toObject(actual.getValue(Node.class));
@@ -985,7 +985,7 @@ public class Script {
             case EACH_CONTAINS_ONLY:
                 return MatchType.CONTAINS_ONLY;
             case EACH_CONTAINS_ANY:
-                return MatchType.CONTAINS_ANY;                
+                return MatchType.CONTAINS_ANY;
             case EACH_EQUALS:
                 return MatchType.EQUALS;
             case EACH_NOT_EQUALS:
@@ -996,52 +996,73 @@ public class Script {
     }
 
     public static AssertionResult matchJsonOrObject(MatchType matchType, ScriptValue actual, String path, String expression, ScriptContext context) {
+        CoverageStructure cs = new CoverageStructure("Script", "matchJsonOrObject", 43);
         DocumentContext actualDoc;
         switch (actual.getType()) {
             case JSON:
+                cs.addBranch(0);
             case JS_ARRAY:
+                cs.addBranch(1);
             case JS_OBJECT:
+                cs.addBranch(2);
             case MAP:
+                cs.addBranch(3);
             case LIST:
+                cs.addBranch(4);
                 actualDoc = actual.getAsJsonDocument();
                 break;
             case XML: // auto convert !
+                cs.addBranch(5);
                 actualDoc = XmlUtils.toJsonDoc(actual.getValue(Node.class));
                 break;
             case STRING: // an edge case when the variable is a plain string not JSON, so switch to plain string compare
+                cs.addBranch(6);
             case INPUT_STREAM:
+                cs.addBranch(7);
                 String actualString = actual.getAsString();
                 ScriptValue expectedString = evalKarateExpression(expression, context);
                 // exit the function early
                 if (!expectedString.isStringOrStream()) {
+                    cs.addBranch(8);
                     return matchFailed(matchType, path, actualString, expectedString.getValue(),
                             "type of actual value is 'string' but that of expected is " + expectedString.getType());
                 } else {
+                    cs.addBranch(9);
                     return matchStringOrPattern('.', path, matchType, null, null, actual, expectedString.getAsString(), context);
                 }
             case PRIMITIVE: // an edge case when the variable is non-string, not-json (number / boolean)
+                cs.addBranch(10);
                 ScriptValue expected = evalKarateExpression(expression, context);
                 if (expected.isStringOrStream()) { // fuzzy match macro
+                    cs.addBranch(11);
                     return matchStringOrPattern('.', path, matchType, null, null, actual, expected.getAsString(), context);
                 } else {
+                    cs.addBranch(12);
                     return matchPrimitive(matchType, path, actual.getValue(), expected.getValue());
                 }
             case NULL: // edge case, assume that this is the root variable that is null and the match is for an optional e.g. '##string'
+                cs.addBranch(13);
                 ScriptValue expectedNull = evalKarateExpression(expression, context);
                 if (expectedNull.isNull()) {
+                    cs.addBranch(14);
                     if (matchType == MatchType.NOT_EQUALS) {
+                        cs.addBranch(15);
                         return matchFailed(matchType, path, null, null, "actual and expected values are both null");
                     }
                     return AssertionResult.PASS;
                 } else if (!expectedNull.isStringOrStream()) { // primitive or anything which is not a string
+                    cs.addBranch(16);
                     if (matchType == MatchType.NOT_EQUALS) {
+                        cs.addBranch(17);
                         return AssertionResult.PASS;
                     }
                     return matchFailed(matchType, path, null, expectedNull.getValue(), "actual value is null but expected is " + expectedNull);
                 } else {
+                    cs.addBranch(18);
                     return matchStringOrPattern('.', path, matchType, null, null, actual, expectedNull.getAsString(), context);
                 }
             default:
+                cs.addBranch(19);
                 throw new RuntimeException("not json, cannot do json path for value: " + actual + ", path: " + path);
         }
         Object actObject = actualDoc.read(path);
@@ -1049,33 +1070,50 @@ public class Script {
         Object expObject;
         switch (expected.getType()) {
             case JSON: // convert to map or list
+                cs.addBranch(20);
                 expObject = expected.getValue(DocumentContext.class).read("$");
                 break;
             case JS_ARRAY: // array returned by js function, needs conversion to list
+                cs.addBranch(21);
                 ScriptObjectMirror som = expected.getValue(ScriptObjectMirror.class);
                 expObject = new ArrayList(som.values());
                 break;
-            default: // btw JS_OBJECT is already a map 
+            default: // btw JS_OBJECT is already a map
+                cs.addBranch(22);
                 expObject = expected.getValue();
         }
         switch (matchType) {
             case CONTAINS:
+                cs.addBranch(23);
             case NOT_CONTAINS:
+                cs.addBranch(24);
             case CONTAINS_ONLY:
+                cs.addBranch(25);
             case CONTAINS_ANY:
+                cs.addBranch(26);
                 if (actObject instanceof List && !(expObject instanceof List)) { // if RHS is not a list, make it so
+                    cs.addBranch(27);
                     expObject = Collections.singletonList(expObject);
                 }
             case NOT_EQUALS:
+                cs.addBranch(28);
             case EQUALS:
+                cs.addBranch(29);
                 return matchNestedObject('.', path, matchType, actualDoc, null, actObject, expObject, context);
             case EACH_CONTAINS:
+                cs.addBranch(30);
             case EACH_NOT_CONTAINS:
+                cs.addBranch(31);
             case EACH_CONTAINS_ONLY:
+                cs.addBranch(32);
             case EACH_CONTAINS_ANY:
+                cs.addBranch(33);
             case EACH_NOT_EQUALS:
+                cs.addBranch(34);
             case EACH_EQUALS:
+                cs.addBranch(35);
                 if (actObject instanceof List) {
+                    cs.addBranch(36);
                     List actList = (List) actObject;
                     MatchType listMatchType = getInnerMatchType(matchType);
                     int actSize = actList.size();
@@ -1084,22 +1122,28 @@ public class Script {
                         String listPath = path + "[" + i + "]";
                         AssertionResult ar = matchNestedObject('.', listPath, listMatchType, actObject, actListObject, actListObject, expObject, context);
                         if (!ar.pass) {
+                            cs.addBranch(37);
                             if (matchType == MatchType.EACH_NOT_EQUALS) {
+                                cs.addBranch(38);
                                 return AssertionResult.PASS; // exit early
                             } else {
+                                cs.addBranch(39);
                                 return ar; // fail early
                             }
                         }
                     }
                     // if we reached here all list items (each) matched
                     if (matchType == MatchType.EACH_NOT_EQUALS) {
+                        cs.addBranch(40);
                         return matchFailed(matchType, path, actual.getValue(), expected.getValue(), "all list items matched");
                     }
                     return AssertionResult.PASS;
                 } else {
+                    cs.addBranch(41);
                     throw new RuntimeException("'match each' failed, not a json array: + " + actual + ", path: " + path);
                 }
             default: // dead code
+                cs.addBranch(42);
                 throw new RuntimeException("unexpected match type: " + matchType);
         }
     }
@@ -1151,7 +1195,7 @@ public class Script {
     }
 
     public static AssertionResult matchFailed(MatchType matchType, String path,
-            Object actObject, Object expObject, String reason) {
+                                              Object actObject, Object expObject, String reason) {
         if (path.startsWith("/")) {
             String leafName = getLeafNameFromXmlPath(path);
             actObject = toXmlString(leafName, actObject);
@@ -1164,7 +1208,7 @@ public class Script {
     }
 
     public static AssertionResult matchNestedObject(char delimiter, String path, MatchType matchType,
-            Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
+                                                    Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
         if (expObject == null) {
             if (actObject != null) {
                 if (matchType == MatchType.NOT_EQUALS) {
@@ -1218,9 +1262,9 @@ public class Script {
                     boolean equal = false;
                     if (childExp instanceof String) {
                         String childMacro = (String) childExp;
-                        if (isOptionalMacro(childMacro) 
-                                || childMacro.equals("#ignore") 
-                                || childMacro.equals("#notpresent")) { // logical match
+                        if (isOptionalMacro(childMacro)
+                                    || childMacro.equals("#ignore")
+                                    || childMacro.equals("#notpresent")) { // logical match
                             if (matchType == MatchType.NOT_CONTAINS) {
                                 return matchFailed(matchType, childPath, "(not present)", childExp, "actual value contains expected");
                             }
@@ -1233,14 +1277,14 @@ public class Script {
                         }
                         if (matchType == MatchType.CONTAINS_ANY) {
                             continue; // keep trying
-                        }                        
+                        }
                         if (matchType != MatchType.NOT_CONTAINS) {
                             return matchFailed(matchType, childPath, "(not present)", childExp, "actual value does not contain expected");
                         }
                     } else { // we found one
                         if (matchType == MatchType.CONTAINS_ANY) {
                             return AssertionResult.PASS; // at least one matched, exit early
-                        }                        
+                        }
                     }
                     continue; // end edge case for key not present
                 }
@@ -1259,10 +1303,10 @@ public class Script {
                     }
                     if (matchType == MatchType.CONTAINS_ANY) {
                         continue; // keep trying
-                    }                    
+                    }
                     if (matchType != MatchType.NOT_CONTAINS) {
                         return ar; // fail early
-                    }                    
+                    }
                 }
             }
             if (matchType == MatchType.CONTAINS_ANY) {
@@ -1294,9 +1338,9 @@ public class Script {
                 }
             }
             if (matchType == MatchType.CONTAINS
-                    || matchType == MatchType.CONTAINS_ONLY
-                    || matchType == MatchType.CONTAINS_ANY
-                    || matchType == MatchType.NOT_CONTAINS) { // just checks for existence (or non-existence)
+                        || matchType == MatchType.CONTAINS_ONLY
+                        || matchType == MatchType.CONTAINS_ANY
+                        || matchType == MatchType.NOT_CONTAINS) { // just checks for existence (or non-existence)
                 for (Object expListObject : expList) { // for each expected item in the list
                     boolean found = false;
                     for (int i = 0; i < actCount; i++) {
@@ -1377,8 +1421,8 @@ public class Script {
 
     public static boolean isPrimitive(Class clazz) {
         return clazz.isPrimitive()
-                || Number.class.isAssignableFrom(clazz)
-                || Boolean.class.equals(clazz);
+                       || Number.class.isAssignableFrom(clazz)
+                       || Boolean.class.equals(clazz);
     }
 
     private static String buildListPath(char delimiter, String path, int index) {
@@ -1398,52 +1442,71 @@ public class Script {
     }
 
     private static AssertionResult matchPrimitive(MatchType matchType, String path, Object actObject, Object expObject) {
+        CoverageStructure cs = new CoverageStructure("Script", "matchPrimitive", 18);
         if (actObject == null) {
+            cs.addBranch(0);
             if (matchType == MatchType.NOT_EQUALS) {
+                cs.addBranch(1);
                 return AssertionResult.PASS;
             } else {
+                cs.addBranch(2);
                 return matchFailed(matchType, path, actObject, expObject, "actual value is null");
             }
         } else if (expObject == null) {
+            cs.addBranch(3);
             if (matchType == MatchType.NOT_EQUALS) {
+                cs.addBranch(4);
                 return AssertionResult.PASS;
             } else {
+                cs.addBranch(5);
                 return matchFailed(matchType, path, actObject, expObject, "expected value is null");
             }
         }
         // if either was null we would have exited already
         if (!expObject.getClass().equals(actObject.getClass())) {
+            cs.addBranch(6);
             if (actObject instanceof BigDecimal) {
+                cs.addBranch(7);
                 BigDecimal actNumber = (BigDecimal) actObject;
                 BigDecimal expNumber = convertToBigDecimal(expObject);
                 if ((expNumber == null || expNumber.compareTo(actNumber) != 0) && matchType != MatchType.NOT_EQUALS) {
+                    cs.addBranch(8);
                     return matchFailed(matchType, path, actObject, expObject, "not equal (big decimal : primitive)");
                 }
             } else if (actObject instanceof Number && expObject instanceof Number) {
+                cs.addBranch(9);
                 // use the JS engine for a lenient equality check
                 String exp = actObject + " == " + expObject;
                 ScriptValue sv = evalJsExpression(exp, null);
                 if (!sv.isBooleanTrue() && matchType != MatchType.NOT_EQUALS) {
+                    cs.addBranch(10);
                     return matchFailed(matchType, path, actObject, expObject, "not equal ("
-                            + actObject.getClass().getSimpleName() + " : " + expObject.getClass().getSimpleName() + ")");
+                                                                                      + actObject.getClass().getSimpleName() + " : " + expObject.getClass().getSimpleName() + ")");
                 }
             } else { // completely different data types, certainly not equal
+                cs.addBranch(11);
                 if (matchType == MatchType.NOT_EQUALS) {
+                    cs.addBranch(12);
                     return AssertionResult.PASS;
                 } else {
+                    cs.addBranch(13);
                     return matchFailed(matchType, path, actObject, expObject, "not equal ("
-                            + actObject.getClass().getSimpleName() + " : " + expObject.getClass().getSimpleName() + ")");
+                                                                                      + actObject.getClass().getSimpleName() + " : " + expObject.getClass().getSimpleName() + ")");
                 }
             }
         } else if (!expObject.equals(actObject)) { // same data type, but not equal
+            cs.addBranch(14);
             if (matchType != MatchType.NOT_EQUALS) {
+                cs.addBranch(15);
                 return matchFailed(matchType, path, actObject, expObject, "not equal (" + actObject.getClass().getSimpleName() + ")");
             }
         }
         // if we reached here both were equal
         if (matchType == MatchType.NOT_EQUALS) {
+            cs.addBranch(16);
             return matchFailed(matchType, path, actObject, expObject, "equal");
         }
+        cs.addBranch(17);
         return AssertionResult.PASS;
     }
 
@@ -1453,12 +1516,12 @@ public class Script {
 
     public static void setValueByPath(String name, String path, ScriptValue value, ScriptContext context) {
         setValueByPath(name, path, value, false, context, false);
-    }    
-    
+    }
+
     public static void setValueByPath(String name, String path, String exp, ScriptContext context) {
         setValueByPath(name, path, exp, false, context, false);
     }
-    
+
     public static void setValueByPath(String name, String path, String exp, boolean delete, ScriptContext context, boolean viaTable) {
         ScriptValue value = delete ? ScriptValue.NULL : evalKarateExpression(exp, context);
         if (viaTable && value.isNull() && !isWithinParentheses(exp)) {
@@ -1470,114 +1533,154 @@ public class Script {
     }
 
     public static void setValueByPath(String name, String path, ScriptValue value, boolean delete, ScriptContext context, boolean viaTable) {
+        CoverageStructure cs = new CoverageStructure("Script","setValueByPath", 16);
         name = StringUtils.trimToEmpty(name);
         path = StringUtils.trimToNull(path);
         if (path == null) {
+            cs.addBranch(0);
             StringUtils.Pair nameAndPath = parseVariableAndPath(name);
             name = nameAndPath.left;
             path = nameAndPath.right;
         }
         validateVariableName(name);
         if (isJsonPath(path)) {
+            cs.addBranch(1);
             ScriptValue target = context.vars.get(name);
             if (target == null || target.isNull()) {
+                cs.addBranch(2);
                 if (viaTable) { // auto create if using set via cucumber table as a convenience
+                    cs.addBranch(3);
                     DocumentContext empty;
                     if (path.startsWith("$[") && !path.startsWith("$['")) {
+                        cs.addBranch(4);
                         empty = JsonUtils.emptyJsonArray(0);
                     } else {
+                        cs.addBranch(5);
                         empty = JsonUtils.emptyJsonObject();
                     }
                     target = new ScriptValue(empty);
                     context.vars.put(name, target);
                 } else {
+                    cs.addBranch(6);
                     throw new RuntimeException("variable is null or not set '" + name + "'");
                 }
             }
             if (target.isJsonLike()) {
+                cs.addBranch(7);
                 DocumentContext dc = target.getAsJsonDocument();
                 JsonUtils.setValueByPath(dc, path, value.getAfterConvertingFromJsonOrXmlIfNeeded(), delete);
             } else {
+                cs.addBranch(8);
                 throw new RuntimeException("cannot set json path on unexpected type: " + target);
             }
         } else if (isXmlPath(path)) {
+            cs.addBranch(9);
             ScriptValue target = context.vars.get(name);
             if (target == null || target.isNull()) {
+                cs.addBranch(10);
                 if (viaTable) { // auto create if using set via cucumber table as a convenience
+                    cs.addBranch(11);
                     Document empty = XmlUtils.newDocument();
                     target = new ScriptValue(empty);
                     context.vars.put(name, target);
                 } else {
+                    cs.addBranch(12);
                     throw new RuntimeException("variable is null or not set '" + name + "'");
                 }
             }
             Document doc = target.getValue(Document.class);
             if (delete) {
+                cs.addBranch(13);
                 XmlUtils.removeByPath(doc, path);
             } else if (value.getType() == XML) {
+                cs.addBranch(14);
                 Node node = value.getValue(Node.class);
                 XmlUtils.setByPath(doc, path, node);
             } else if (value.isMapLike()) { // cast to xml
+                cs.addBranch(15);
                 Node node = XmlUtils.fromMap(value.getAsMap());
                 XmlUtils.setByPath(doc, path, node);
             } else {
+                cs.addBranch(16);
                 XmlUtils.setByPath(doc, path, value.getAsString());
             }
         } else {
+            cs.addBranch(17);
             throw new RuntimeException("unexpected path: " + path);
         }
     }
 
     public static ScriptValue call(String name, String argString, ScriptContext context, boolean reuseParentConfig) {
+        CoverageStructure cs = new CoverageStructure("Script", "call", 20);
         ScriptValue argValue = evalKarateExpression(argString, context);
         ScriptValue sv = evalKarateExpression(name, context);
         switch (sv.getType()) {
             case JS_FUNCTION:
+                cs.addBranch(0);
                 switch (argValue.getType()) {
                     case JSON:
+                        cs.addBranch(1);
                         // force to java map (or list)
                         argValue = new ScriptValue(argValue.getValue(DocumentContext.class).read("$"));
                     case JS_ARRAY:
+                        cs.addBranch(2);
                     case JS_OBJECT:
+                        cs.addBranch(3);
                     case MAP:
+                        cs.addBranch(4);
                     case LIST:
+                        cs.addBranch(5);
                     case STRING:
+                        cs.addBranch(6);
                     case INPUT_STREAM:
+                        cs.addBranch(7);
                     case PRIMITIVE:
+                        cs.addBranch(8);
                     case NULL:
+                        cs.addBranch(9);
                         break;
                     default:
+                        cs.addBranch(10);
                         throw new RuntimeException("only json or primitives allowed as (single) function call argument");
                 }
                 ScriptObjectMirror som = sv.getValue(ScriptObjectMirror.class);
                 return evalFunctionCall(som, argValue.getValue(), context);
             case FEATURE_WRAPPER:
+                cs.addBranch(11);
                 Object callArg = null;
                 switch (argValue.getType()) {
                     case LIST:
+                        cs.addBranch(12);
                         callArg = argValue.getValue(List.class);
                         break;
                     case JSON:
+                        cs.addBranch(13);
                         callArg = argValue.getValue(DocumentContext.class).read("$");
                         break;
                     case MAP:
+                        cs.addBranch(14);
                         callArg = argValue.getValue(Map.class);
                         break;
                     case JS_OBJECT:
+                        cs.addBranch(15);
                         callArg = argValue.getValue(ScriptObjectMirror.class);
                         break;
                     case JS_ARRAY:
+                        cs.addBranch(16);
                         ScriptObjectMirror temp = argValue.getValue(ScriptObjectMirror.class);
                         callArg = temp.values();
                         break;
                     case NULL:
+                        cs.addBranch(17);
                         break;
                     default:
+                        cs.addBranch(18);
                         throw new RuntimeException("only json, list/array or map allowed as feature call argument");
                 }
                 FeatureWrapper feature = sv.getValue(FeatureWrapper.class);
                 return evalFeatureCall(feature, callArg, context, reuseParentConfig);
             default:
+                cs.addBranch(19);
                 context.logger.warn("not a js function or feature file: {} - {}", name, sv);
                 return ScriptValue.NULL;
         }
@@ -1618,7 +1721,7 @@ public class Script {
                         result.add(rowResult.getValue());
                     } catch (KarateException ke) {
                         String message = "feature call (loop) failed at index: " + i + "\ncaller: "
-                                + feature.getEnv().featureName + "\narg: " + rowArg + "\n" + ke.getMessage();
+                                                 + feature.getEnv().featureName + "\narg: " + rowArg + "\n" + ke.getMessage();
                         errors.add(message);
                         // log but don't stop (yet)
                         context.logger.error("{}", message);
@@ -1629,7 +1732,7 @@ public class Script {
             }
             if (!errors.isEmpty()) {
                 String message = "feature call (loop) failed: " + feature.getPath()
-                        + "\ncaller: " + feature.getEnv().featureName + "\nitems: " + items + "\nerrors:";
+                                         + "\ncaller: " + feature.getEnv().featureName + "\nitems: " + items + "\nerrors:";
                 for (String s : errors) {
                     message = message + "\n-------\n" + s;
                 }
@@ -1642,7 +1745,7 @@ public class Script {
                 return evalFeatureCall(feature, context, argAsMap, -1, reuseParentConfig);
             } catch (KarateException ke) {
                 String message = "feature call failed: " + feature.getPath()
-                        + "\narg: " + callArg + "\n" + ke.getMessage();
+                                         + "\narg: " + callArg + "\n" + ke.getMessage();
                 context.logger.error("{}", message);
                 throw new KarateException(message, ke);
             }
@@ -1652,7 +1755,7 @@ public class Script {
     }
 
     private static ScriptValue evalFeatureCall(FeatureWrapper feature, ScriptContext context,
-            Map<String, Object> callArg, int loopIndex, boolean reuseParentConfig) {
+                                               Map<String, Object> callArg, int loopIndex, boolean reuseParentConfig) {
         CallContext callContext = new CallContext(context, context.callDepth + 1, callArg, loopIndex, reuseParentConfig, false, null);
         if (context.env.reporter != null) {
             context.env.reporter.callBegin(feature, callContext);

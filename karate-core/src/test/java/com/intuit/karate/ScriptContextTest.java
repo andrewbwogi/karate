@@ -79,4 +79,18 @@ public class ScriptContextTest {
 
 
     }
+    
+    
+    @Test
+    public void testConfigureHttpClient() {
+        String featureDir = FileUtils.getDirContaining(getClass()).getPath();
+        ScriptEnv env = ScriptEnv.init("baz", new File(featureDir));
+        CallContext callContext = new CallContext(null, 0, null, -1, false, true, null);
+        ScriptContext ctx = new ScriptContext(env, callContext);
+
+        ScriptValue value = new ScriptValue("com.intuit.karate.http.CustomDummyHttpClient");
+        ctx.configure("httpClientClass", value);
+        HttpConfig conf = ctx.getConfig();
+        assertEquals("com.intuit.karate.http.CustomDummyHttpClient", conf.getClientClass());
+    }
 }

@@ -316,6 +316,19 @@ public class ScriptTest {
 
     @Test
     public void matchNestedObject() {
+        /**
+         *
+         * matchNestedObject() in Script takes an actual and an expected object and outputs if they
+         * match specified by a MatchType argument. The method should return an AssertionResult.PASS
+         * if the match type conforms with the kind of objects passed as the actual object and
+         * expected object parameters. For instance, if match type is NOT_EQUALS, the expected object is null
+         * and the actual object is a Map, the method should return AssertionResult.PASS. The method can also
+         * return a more detailed message in some cases. These tests make sure that a particular kind of message
+         * is returned if both the actual and expected object is null and if both objects are Maps that do not contain
+         * the same key if the value of the expected object key begins with '##'.
+         *
+         *
+         */
         ScriptContext ctx = getContext();
         Map<String, Object> left = new HashMap<>();
         left.put("foo", "bar");
@@ -325,7 +338,6 @@ public class ScriptTest {
         assertEquals(AssertionResult.PASS, ar);
 
         ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, null, null, ctx);
-        AssertionResult expectedAr = Script.matchFailed(MatchType.NOT_EQUALS, "$", null, null, "equal, both are null");
         int index = ar.message.indexOf("reason");
         if(index == -1)
             Assert.fail("Unexpected message");

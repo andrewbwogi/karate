@@ -14,7 +14,7 @@ public class ScriptContextTest {
         /**
          * Each assertion tests so that the script context is configured in the way specified.
          * The configuration is done in a ScriptContext object and sets internal fields in the object to the
-         * configured value. This same object has get methods that returns the configured values. 
+         * configured value. This same object has get methods that returns the configured values.
          * The tests below make sure that a correct value is returned relative to a configuration.
          */
         String featureDir = FileUtils.getDirContaining(getClass()).getPath();

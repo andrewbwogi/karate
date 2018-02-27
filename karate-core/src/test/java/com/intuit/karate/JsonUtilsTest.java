@@ -88,6 +88,21 @@ public class JsonUtilsTest {
         doc = JsonUtils.toJsonDoc("[]");
         JsonUtils.setValueByPath(doc, "$[0].foo.bar", 1);
         assertEquals("[{\"foo\":{\"bar\":1}}]", doc.jsonString());
+        JsonUtils.setValueByPath(doc, "$[0].foo.['bar']", 1);
+        assertEquals("[{\"foo\":{\"bar\":1}}]", doc.jsonString());
+
+        doc = JsonUtils.toJsonDoc("[[]]");
+        JsonUtils.setValueByPath(doc, "$.[0][0]", 1);
+        assertEquals("[[1]]", doc.jsonString());
+
+
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testSetByPathException() {
+        String raw = "{ foo: 'bar' }";
+        DocumentContext doc = JsonUtils.toJsonDoc(raw);
+        JsonUtils.setValueByPath(doc, "$", "baz");
     }
 
     @Test

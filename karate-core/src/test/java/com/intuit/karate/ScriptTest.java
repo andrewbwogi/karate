@@ -64,6 +64,20 @@ public class ScriptTest {
         value = Script.evalJsExpression("a + b", ctx);
         assertEquals(ScriptValue.Type.PRIMITIVE, value.getType());
         assertEquals(3.0, value.getValue());
+        assertTrue(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "'barbaz'", ctx).pass);
+
+    }
+
+    @Test
+    public void testEvalStrings() {
+        ScriptContext ctx = getContext();
+        ctx.vars.put("c", "string");
+        ScriptValue value = Script.evalJsExpression("c", ctx);
+
+        assertTrue(Script.matchJsonOrObject(MatchType.EQUALS, value, "$", "'string'", ctx).pass);
+        assertTrue(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "'string-wrong'", ctx).pass);
+
+        assertFalse(Script.matchJsonOrObject(MatchType.NOT_EQUALS, value, "$", "1 + 2", ctx).pass);
     }
 
     @Test
@@ -136,6 +150,8 @@ public class ScriptTest {
         ctx.vars.put("myJson", doc);
         ScriptValue value = Script.evalJsonPathOnVarByName("myJson", "$.foo", ctx);
         assertEquals("bar", value.getValue());
+        value = Script.evalKarateExpression("callonce myJson.foo", ctx);
+        assertEquals(null, value.getValue());
         value = Script.evalKarateExpression("myJson.foo", ctx);
         assertEquals("bar", value.getValue());
         value = Script.evalJsonPathOnVarByName("myJson", "$.baz[1]", ctx);
@@ -477,7 +493,7 @@ public class ScriptTest {
         Script.assign("json", "[{ foo: 'bar'}, { foo: 'baz' }]", ctx);
         assertFalse(Script.matchNamed(MatchType.NOT_EQUALS, "json", null, "[{ foo: 'bar'}, { foo: 'baz' }]", ctx).pass);
         assertTrue(Script.matchNamed(MatchType.NOT_EQUALS, "json", null, "[{ foo: 'bar'}, { foo: 'blah' }]", ctx).pass);
-        assertTrue(Script.matchNamed(MatchType.NOT_CONTAINS, "json", null, "{ foo: 'blah' }", ctx).pass);        
+        assertTrue(Script.matchNamed(MatchType.NOT_CONTAINS, "json", null, "{ foo: 'blah' }", ctx).pass);
     }    
 
     @Test
@@ -970,6 +986,7 @@ public class ScriptTest {
         assertTrue(Script.matchNamed(MatchType.EQUALS, "xml", null, "<root><foo bar=\"1\"/></root>", ctx).pass);
         Script.setValueByPath("xml/root/foo[2]", null, "1", ctx);
         assertTrue(Script.matchNamed(MatchType.EQUALS, "xml", null, "<root><foo bar=\"1\"/><foo>1</foo></root>", ctx).pass);
+
     }
     
     @Test
@@ -1660,5 +1677,32 @@ public class ScriptTest {
         Script.assignJson("foo", "{}", ctx, true);
         assertTrue(Script.matchNamed(MatchType.EQUALS, "foo", null, "{}", ctx).pass);
     }
+
+    @Test
+    public void testMatchStringOrPattern() {
+        ScriptContext ctx = getContext();
+        ctx.vars.put("foo", "bar");
+        ctx.vars.put("a", 1);
+        ctx.vars.put("b", 2);
+        String expression = "foo + 'baz'";
+        ScriptValue value = Script.evalJsExpression(expression, ctx);
+
+        assertEquals(
+            AssertionResult.PASS,
+            Script.matchStringOrPattern('a', "", MatchType.NOT_EQUALS, "", "", value, null, ctx)
+        );
+        AssertionResult res = Script.matchStringOrPattern('a', "", MatchType.EQUALS, "", "", value, null, ctx);
+        assertFalse(res.pass);
+    }
+
+    @Test
+    public void testEvalKarateExpression() {
+        ScriptContext ctx = getContext();
+        DocumentContext doc = JsonUtils.toJsonDoc("{ foo: 'bar', baz: [1, 2], ban: { hello: 'world' } }");
+        ctx.vars.put("myJson", doc);
+        ScriptValue value = Script.evalJsonPathOnVarByName("myJson", "$.foo", ctx);
+        value = Script.evalKarateExpression("callonce myJson.foo", ctx);
+    }
+
     
 }

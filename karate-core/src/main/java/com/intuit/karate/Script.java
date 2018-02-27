@@ -209,8 +209,8 @@ public class Script {
         }
         boolean callOnce = isCallOnceSyntax(text);
         if (callOnce || isCallSyntax(text)) { // special case in form "callBegin foo arg"
-            if (callOnce) {
-                text = text.substring(9);
+            if (callOnce) { // Task 2: Improvement of coverage: Anders
+                text = text.substring(9); // Task 2: Improvement of coverage: Anders
             } else {
                 text = text.substring(5);
             }
@@ -222,8 +222,8 @@ public class Script {
             } else {
                 arg = null;
             }
-            if (callOnce) {
-                return callWithCache(text, arg, context, reuseParentConfig);
+            if (callOnce) { // Task 2: Improvement of coverage: Anders
+                return callWithCache(text, arg, context, reuseParentConfig); // Task 2: Improvement of coverage: Anders
             } else {
                 return call(text, arg, context, reuseParentConfig);
             }
@@ -709,6 +709,8 @@ public class Script {
 
     public static AssertionResult matchStringOrPattern(char delimiter, String path, MatchType stringMatchType,
             Object actRoot, Object actParent, ScriptValue actValue, String expected, ScriptContext context) {
+        // Task 2: Improvement of coverage: Anders
+        // START
         if (expected == null) {
             if (!actValue.isNull()) {
                 if (stringMatchType == MatchType.NOT_EQUALS) {
@@ -717,6 +719,8 @@ public class Script {
                     return matchFailed(stringMatchType, path, actValue.getValue(), expected, "actual value is not null");
                 }
             }
+        // Task 2: Improvement of coverage: Anders
+        // END
         } else if (isMacro(expected)) {
             String macroExpression;
             if (isOptionalMacro(expected)) {              

@@ -79,7 +79,7 @@ public class StringUtils {
         return EMPTY.equals(temp) ? null : temp;
     }
 
-    public static String repeat(char c, int count) {
+    public static String repeat(char c, int count) { // Task 2: Improvement of coverage: Anders
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
             sb.append(c);

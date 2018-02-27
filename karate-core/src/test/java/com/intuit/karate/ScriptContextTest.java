@@ -10,6 +10,13 @@ import static org.junit.Assert.assertEquals;
 public class ScriptContextTest {
     @Test
     public void testConfigure() {
+
+        /**
+         * Each assertion tests so that the script context is configured in the way specified.
+         * The configuration is done in a ScriptContext object and sets internal fields in the object to the
+         * configured value. This same object has get methods that returns the configured values.
+         * The tests below make sure that a correct value is returned relative to a configuration.
+         */
         String featureDir = FileUtils.getDirContaining(getClass()).getPath();
         ScriptEnv env = ScriptEnv.init("baz", new File(featureDir));
         CallContext callContext = new CallContext(null, 0, null, -1, false, true, null);
@@ -71,5 +78,26 @@ public class ScriptContextTest {
 
 
 
+    }
+    
+    /**
+     *
+     * This test covers the case where a httpClient class is set by
+     * the configure method in ScriptContext.
+     * Causes the if statement at line 212 of ScriptContext.java
+     * to evaluate to true (not covered by other branches)
+     *
+     */
+    @Test
+    public void testConfigureHttpClient() {
+        String featureDir = FileUtils.getDirContaining(getClass()).getPath();
+        ScriptEnv env = ScriptEnv.init("baz", new File(featureDir));
+        CallContext callContext = new CallContext(null, 0, null, -1, false, true, null);
+        ScriptContext ctx = new ScriptContext(env, callContext);
+
+        ScriptValue value = new ScriptValue("com.intuit.karate.http.CustomDummyHttpClient");
+        ctx.configure("httpClientClass", value);
+        HttpConfig conf = ctx.getConfig();
+        assertEquals("com.intuit.karate.http.CustomDummyHttpClient", conf.getClientClass());
     }
 }

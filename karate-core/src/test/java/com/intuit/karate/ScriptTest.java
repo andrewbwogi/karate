@@ -10,11 +10,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.Assert.*;
 import org.w3c.dom.Document;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  *
@@ -324,6 +328,52 @@ public class ScriptTest {
         assertFalse(matchJsonObject(left, right, ctx).pass);
         rightChild.put("a", "#ignore");
         assertTrue(matchJsonObject(left, right, ctx).pass);
+    }
+
+    @Test
+    public void matchNestedObject() {
+        /**
+         *
+         * matchNestedObject() in Script takes an actual and an expected object and outputs if they
+         * match specified by a MatchType argument. The method should return an AssertionResult.PASS
+         * if the match type conforms with the kind of objects passed as the actual object and
+         * expected object parameters. For instance, if match type is NOT_EQUALS, the expected object is null
+         * and the actual object is a Map, the method should return AssertionResult.PASS. The method can also
+         * return a more detailed message in some cases. These tests make sure that a particular kind of message
+         * is returned if both the actual and expected object is null and if both objects are Maps that do not contain
+         * the same key if the value of the expected object key begins with '##'.
+         *
+         *
+         */
+        ScriptContext ctx = getContext();
+        Map<String, Object> left = new HashMap<>();
+        left.put("foo", "bar");
+        Map<String, Object> right = new HashMap<>();
+        right.put("foo", "bar");
+        AssertionResult ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, left, null, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, null, null, ctx);
+        int index = ar.message.indexOf("reason");
+        if(index == -1)
+            Assert.fail("Unexpected message");
+        String actualString = ar.message.substring(index);
+        assertEquals("reason: equal, both are null", actualString);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, null, right, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, "test-value", right, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        Map<String, Object> newRight = new HashMap<>();
+        newRight.put("foo2", "##bar2");
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_CONTAINS, null, null, left, newRight, ctx);
+        index = ar.message.indexOf("reason");
+        if(index == -1)
+            Assert.fail("Unexpected message");
+        actualString = ar.message.substring(index);
+        assertEquals("reason: actual value contains expected", actualString);
     }
 
     @Test
@@ -847,6 +897,27 @@ public class ScriptTest {
         Script.assign("fun2", "function(arg){ return arg + 'bar' }", ctx);
         Script.assign("res2", "call fun2 res1", ctx);
         assertTrue(Script.matchNamed(MatchType.EQUALS, "res2", null, "'foobar'", ctx).pass);
+    }
+    
+    /**
+     *
+     * The function call() in Script.java can be used to call a
+     * javascript function contained in a Karate Expression.
+     * This test covers the case where the function takes as input
+     * a primitive-type from another function.
+     * The test cover the PRIMITIVE-branch of the switch statement
+     * which was not covered previously
+     *
+     */
+    @Test
+    public void testCallingFunctionWithPrimitiveReturnedFromAnotherFunction() {
+        ScriptContext ctx = getContext();
+        Script.assign("fun1", "function(){ return true }", ctx);
+        Script.assign("res1", "call fun1", ctx);
+        assertTrue(Script.matchNamed(MatchType.EQUALS, "res1", null, "true", ctx).pass);
+        Script.assign("fun2", "function(arg){ return arg || true }", ctx);
+        Script.assign("res2", "call fun2 res1", ctx);
+        assertTrue(Script.matchNamed(MatchType.EQUALS, "res2", null, "true", ctx).pass);
     }
     
     @Test

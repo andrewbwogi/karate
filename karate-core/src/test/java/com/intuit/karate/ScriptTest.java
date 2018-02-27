@@ -900,6 +900,17 @@ public class ScriptTest {
     }
     
     @Test
+    public void testCallingFunctionWithPrimitiveReturnedFromAnotherFunction() {
+        ScriptContext ctx = getContext();
+        Script.assign("fun1", "function(){ return true }", ctx);
+        Script.assign("res1", "call fun1", ctx);
+        assertTrue(Script.matchNamed(MatchType.EQUALS, "res1", null, "true", ctx).pass);
+        Script.assign("fun2", "function(arg){ return arg || true }", ctx);
+        Script.assign("res2", "call fun2 res1", ctx);
+        assertTrue(Script.matchNamed(MatchType.EQUALS, "res2", null, "true", ctx).pass);
+    }
+    
+    @Test
     public void testJsonReturnedFromJsRead() {
         ScriptContext ctx = getContext();
         Script.assign("fun", "function(){ return karate.read('classpath:test.json') }", ctx);

@@ -51,5 +51,16 @@ public class ScriptValueTest {
         Object temp = doc.read("$");
         assertTrue(temp instanceof List);
     }
+    @Test
+    public void testGetAsStringWhenNull() {
+        // The getAsString-method should return a JSON-formatted string.
+        // This json-string should be null when the ScriptValue-instance
+        // was created with the 2-arguments-constructor, with the first argument
+        // equal to null.
+        ScriptValue sv = new ScriptValue(null, "test");
+        assertNull( sv.getAsString() );
+    }
+
+
     
 }

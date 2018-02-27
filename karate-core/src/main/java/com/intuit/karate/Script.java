@@ -1162,11 +1162,9 @@ public class Script {
                 path, quoteIfString(actObject), isNegation(matchType) ? "NOT " : "", quoteIfString(expObject), reason);
         return AssertionResult.fail(message);
     }
-
-    public static AssertionResult matchNestedObject(char delimiter, String path, MatchType matchType,
+    private static AssertionResult matchNestedObjectNull(char delimiter, String path, MatchType matchType,
             Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
-        if (expObject == null) {
-            if (actObject != null) {
+        if (actObject != null) {
                 if (matchType == MatchType.NOT_EQUALS) {
                     return AssertionResult.PASS;
                 } else {
@@ -1179,17 +1177,10 @@ public class Script {
                     return AssertionResult.PASS;
                 }
             }
-        } else if (expObject instanceof String) {
-            ScriptValue actValue = new ScriptValue(actObject);
-            return matchStringOrPattern(delimiter, path, matchType, actRoot, actParent, actValue, expObject.toString(), context);
-        } else if (actObject == null) {
-            if (matchType == MatchType.NOT_EQUALS) {
-                return AssertionResult.PASS;
-            } else {
-                return matchFailed(matchType, path, actObject, expObject, "actual value is null");
-            }
-        } else if (expObject instanceof Map) {
-            if (!(actObject instanceof Map)) {
+    }
+    private static AssertionResult matchNestedObjectMap(char delimiter, String path, MatchType matchType,
+            Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
+        if (!(actObject instanceof Map)) {
                 if (matchType == MatchType.NOT_EQUALS) {
                     return AssertionResult.PASS;
                 } else {
@@ -1274,8 +1265,10 @@ public class Script {
                 return matchFailed(matchType, path, actObject, expObject, "all key-values matched");
             }
             return AssertionResult.PASS;
-        } else if (expObject instanceof List) {
-            if (!(actObject instanceof List)) {
+    }
+    private static AssertionResult matchNestedObjectList(char delimiter, String path, MatchType matchType,
+            Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
+        if (!(actObject instanceof List)) {
                 if (matchType == MatchType.NOT_EQUALS) {
                     return AssertionResult.PASS;
                 } else {
@@ -1350,8 +1343,10 @@ public class Script {
                 }
                 return AssertionResult.PASS;
             }
-        } else if (expObject instanceof BigDecimal) {
-            BigDecimal expNumber = (BigDecimal) expObject;
+    }
+    private static AssertionResult matchNestedObjectBigDecimal(char delimiter, String path, MatchType matchType,
+            Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
+        BigDecimal expNumber = (BigDecimal) expObject;
             if (actObject instanceof BigDecimal) {
                 BigDecimal actNumber = (BigDecimal) actObject;
                 if (actNumber.compareTo(expNumber) != 0 && matchType != MatchType.NOT_EQUALS) {
@@ -1368,6 +1363,26 @@ public class Script {
                 return matchFailed(matchType, path, actObject, expObject, "equal");
             }
             return AssertionResult.PASS;
+    }
+    public static AssertionResult matchNestedObject(char delimiter, String path, MatchType matchType,
+            Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
+        if (expObject == null) {
+            return matchNestedObjectNull(delimiter, path, matchType, actRoot, actParent, actObject, expObject, context);
+        } else if (expObject instanceof String) {
+            ScriptValue actValue = new ScriptValue(actObject);
+            return matchStringOrPattern(delimiter, path, matchType, actRoot, actParent, actValue, expObject.toString(), context);
+        } else if (actObject == null) {
+            if (matchType == MatchType.NOT_EQUALS) {
+                return AssertionResult.PASS;
+            } else {
+                return matchFailed(matchType, path, actObject, expObject, "actual value is null");
+            }
+        } else if (expObject instanceof Map) {
+            return matchNestedObjectMap(delimiter, path, matchType, actRoot, actParent, actObject, expObject, context);
+        } else if (expObject instanceof List) {
+            return matchNestedObjectList(delimiter, path, matchType, actRoot, actParent, actObject, expObject, context);
+        } else if (expObject instanceof BigDecimal) {
+            return matchNestedObjectBigDecimal(delimiter, path, matchType, actRoot, actParent, actObject, expObject, context);
         } else if (isPrimitive(expObject.getClass())) {
             return matchPrimitive(matchType, path, actObject, expObject);
         } else { // this should never happen

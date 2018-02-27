@@ -709,6 +709,8 @@ public class Script {
 
     public static AssertionResult matchStringOrPattern(char delimiter, String path, MatchType stringMatchType,
             Object actRoot, Object actParent, ScriptValue actValue, String expected, ScriptContext context) {
+        // Task 2: Improvement of coverage: Anders
+        // START
         if (expected == null) {
             if (!actValue.isNull()) {
                 if (stringMatchType == MatchType.NOT_EQUALS) {
@@ -717,6 +719,8 @@ public class Script {
                     return matchFailed(stringMatchType, path, actValue.getValue(), expected, "actual value is not null");
                 }
             }
+        // Task 2: Improvement of coverage: Anders
+        // END
         } else if (isMacro(expected)) {
             String macroExpression;
             if (isOptionalMacro(expected)) {              

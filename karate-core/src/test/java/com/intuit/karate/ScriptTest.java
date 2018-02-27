@@ -920,6 +920,7 @@ public class ScriptTest {
         assertTrue(Script.matchNamed(MatchType.EQUALS, "xml", null, "<root><foo bar=\"1\"/></root>", ctx).pass);
         Script.setValueByPath("xml/root/foo[2]", null, "1", ctx);
         assertTrue(Script.matchNamed(MatchType.EQUALS, "xml", null, "<root><foo bar=\"1\"/><foo>1</foo></root>", ctx).pass);
+
     }
     
     @Test
@@ -1609,6 +1610,23 @@ public class ScriptTest {
         assertTrue(Script.matchNamed(MatchType.EQUALS, "foo", null, "[]", ctx).pass);
         Script.assignJson("foo", "{}", ctx, true);
         assertTrue(Script.matchNamed(MatchType.EQUALS, "foo", null, "{}", ctx).pass);
+    }
+
+    @Test
+    public void testMatchStringOrPattern() {
+        ScriptContext ctx = getContext();
+        ctx.vars.put("foo", "bar");
+        ctx.vars.put("a", 1);
+        ctx.vars.put("b", 2);
+        String expression = "foo + 'baz'";
+        ScriptValue value = Script.evalJsExpression(expression, ctx);
+
+        assertEquals(
+            AssertionResult.PASS,
+            Script.matchStringOrPattern('a', "", MatchType.NOT_EQUALS, "", "", value, null, ctx)
+        );
+        AssertionResult res = Script.matchStringOrPattern('a', "", MatchType.EQUALS, "", "", value, null, ctx);
+        assertFalse(res.pass);
     }
     
 }

@@ -10,11 +10,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.Assert.*;
 import org.w3c.dom.Document;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  *
@@ -308,6 +312,40 @@ public class ScriptTest {
         assertFalse(matchJsonObject(left, right, ctx).pass);
         rightChild.put("a", "#ignore");
         assertTrue(matchJsonObject(left, right, ctx).pass);
+    }
+
+    @Test
+    public void matchNestedObject() {
+        ScriptContext ctx = getContext();
+        Map<String, Object> left = new HashMap<>();
+        left.put("foo", "bar");
+        Map<String, Object> right = new HashMap<>();
+        right.put("foo", "bar");
+        AssertionResult ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, left, null, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, null, null, ctx);
+        AssertionResult expectedAr = Script.matchFailed(MatchType.NOT_EQUALS, "$", null, null, "equal, both are null");
+        int index = ar.message.indexOf("reason");
+        if(index == -1)
+            Assert.fail("Unexpected message");
+        String actualString = ar.message.substring(index);
+        assertEquals("reason: equal, both are null", actualString);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, null, right, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_EQUALS, null, null, "test-value", right, ctx);
+        assertEquals(AssertionResult.PASS, ar);
+
+        Map<String, Object> newRight = new HashMap<>();
+        newRight.put("foo2", "##bar2");
+        ar = Script.matchNestedObject('.', "$", MatchType.NOT_CONTAINS, null, null, left, newRight, ctx);
+        index = ar.message.indexOf("reason");
+        if(index == -1)
+            Assert.fail("Unexpected message");
+        actualString = ar.message.substring(index);
+        assertEquals("reason: actual value contains expected", actualString);
     }
 
     @Test

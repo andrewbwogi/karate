@@ -61,6 +61,13 @@ public class ScriptValueTest {
         assertNull( sv.getAsString() );
     }
 
-
-    
+    @Test
+    public void testGetAsStringWhenJson() {
+        // The getAsString-method should return a JSON-formatted string.
+        // This json-string should be exactly the String-representation of the 
+        // DocumentContext instance that is passed as argument to the ScriptValue constructor. 
+        DocumentContext doc = JsonPath.parse("{ foo: 'bar' }");
+        ScriptValue sv = new ScriptValue(doc, "test");
+        assertEquals( "{\"foo\":\"bar\"}", sv.getAsString() );
+    } 
 }

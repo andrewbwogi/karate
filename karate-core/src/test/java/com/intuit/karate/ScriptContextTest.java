@@ -80,7 +80,14 @@ public class ScriptContextTest {
 
     }
     
-    
+    /**
+     *
+     * This test covers the case where a httpClient class is set by
+     * the configure method in ScriptContext.
+     * Causes the if statement at line 212 of ScriptContext.java
+     * to evaluate to true (not covered by other branches)
+     *
+     */
     @Test
     public void testConfigureHttpClient() {
         String featureDir = FileUtils.getDirContaining(getClass()).getPath();

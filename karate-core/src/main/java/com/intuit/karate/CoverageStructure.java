@@ -12,7 +12,7 @@ public class CoverageStructure {
 
     public static String functionName;
     public static int noOfBranches;
-    public static ArrayList<Integer> branches = new ArrayList<>(); // array containing id's of each branch
+    public static ArrayList<Integer> branches; // array containing id's of each branch
 
     public static void setCoverageStructure(String functionNameIn, int noOfBranchesIn) {
         functionName = functionNameIn;

@@ -209,8 +209,8 @@ public class Script {
         }
         boolean callOnce = isCallOnceSyntax(text);
         if (callOnce || isCallSyntax(text)) { // special case in form "callBegin foo arg"
-            if (callOnce) {
-                text = text.substring(9);
+            if (callOnce) { // Task 2: Improvement of coverage: Anders
+                text = text.substring(9); // Task 2: Improvement of coverage: Anders
             } else {
                 text = text.substring(5);
             }
@@ -222,8 +222,8 @@ public class Script {
             } else {
                 arg = null;
             }
-            if (callOnce) {
-                return callWithCache(text, arg, context, reuseParentConfig);
+            if (callOnce) { // Task 2: Improvement of coverage: Anders
+                return callWithCache(text, arg, context, reuseParentConfig); // Task 2: Improvement of coverage: Anders
             } else {
                 return call(text, arg, context, reuseParentConfig);
             }

@@ -24,6 +24,10 @@ public class ScriptContextTest {
         conf = ctx.getConfig();
         assertEquals("test-value", conf.getResponseHeaders().getValue());
 
+        ctx.configure("cookies", value);
+        conf = ctx.getConfig();
+        assertEquals("test-value", conf.getCookies().getValue());
+
         ctx.configure("afterFeature", value);
         conf = ctx.getConfig();
         assertEquals("test-value", conf.getAfterFeature().getValue());

@@ -899,6 +899,16 @@ public class ScriptTest {
         assertTrue(Script.matchNamed(MatchType.EQUALS, "res2", null, "'foobar'", ctx).pass);
     }
     
+    /**
+     *
+     * The function call() in Script.java can be used to call a
+     * javascript function contained in a Karate Expression.
+     * This test covers the case where the function takes as input
+     * a primitive-type from another function.
+     * The test cover the PRIMITIVE-branch of the switch statement
+     * which was not covered previously
+     *
+     */
     @Test
     public void testCallingFunctionWithPrimitiveReturnedFromAnotherFunction() {
         ScriptContext ctx = getContext();

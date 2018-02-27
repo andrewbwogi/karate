@@ -146,6 +146,8 @@ public class ScriptTest {
         ctx.vars.put("myJson", doc);
         ScriptValue value = Script.evalJsonPathOnVarByName("myJson", "$.foo", ctx);
         assertEquals("bar", value.getValue());
+        value = Script.evalKarateExpression("callonce myJson.foo", ctx);
+        assertEquals(null, value.getValue());
         value = Script.evalKarateExpression("myJson.foo", ctx);
         assertEquals("bar", value.getValue());
         value = Script.evalJsonPathOnVarByName("myJson", "$.baz[1]", ctx);
@@ -1642,5 +1644,15 @@ public class ScriptTest {
         AssertionResult res = Script.matchStringOrPattern('a', "", MatchType.EQUALS, "", "", value, null, ctx);
         assertFalse(res.pass);
     }
+
+    @Test
+    public void testEvalKarateExpression() {
+        ScriptContext ctx = getContext();
+        DocumentContext doc = JsonUtils.toJsonDoc("{ foo: 'bar', baz: [1, 2], ban: { hello: 'world' } }");
+        ctx.vars.put("myJson", doc);
+        ScriptValue value = Script.evalJsonPathOnVarByName("myJson", "$.foo", ctx);
+        value = Script.evalKarateExpression("callonce myJson.foo", ctx);
+    }
+
     
 }

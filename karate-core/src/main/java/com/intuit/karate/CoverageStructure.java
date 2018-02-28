@@ -5,8 +5,25 @@ import java.util.ArrayList;
 /**
  * Usage:
  * 1. Call CoverageStructure.setCoverageStructure() in the beginning of the test function.
- * 2. Set out CoverageStructure.addBranch() in every branch of the tested function.
+ * 2. Set out CoverageStructure.addBranch(id) in every branch of the tested function.
+ * The id specifies the id of the covered branch.
  * 3. Call CoverageStructure.printBranches() in the end of the test function.
+ *
+ * Alternative usage:
+ * 1. Set out CoverageStructure.addBranch(id, funcId) in every branch of the tested function.
+ * The id specifies the id of the covered branch. The funcId specifies the id of the method covered.
+ * 2. Call first CoverageStructure.setCoverageStructure() and then CoverageStructure.printBranches()
+ * with the desired function id that represents the covered method. This alternative usage is for covering
+ * methods that are called from several different test suites. These last calls should be called after every test
+ * suit relevant to the method has been called.
+ *
+ * The configuration and printing of the branch coverage is made in the following test classes:
+ *
+ * JsonUtils::setValueByPath in JsonUtilsTest::testSetByPath
+ * ScriptValue::getAsString is untested in the original project
+ * StepDefs::toMatchType in WDIYCoverageTest::testPrint
+ * ScriptContext::configure in WDIYCoverageTest::testPrint
+ * ScriptContext::ScriptContext in WDIYCoverageTest::testPrint
  */
 public class CoverageStructure {
 
@@ -20,13 +37,13 @@ public class CoverageStructure {
         functionName = functionNameIn;
         noOfBranches = noOfBranchesIn;
         branches = new ArrayList<>();
-        System.out.println("*********Now covering: " + functionName + "*********");
+        System.out.println("\n\n\n*********Now covering: " + functionName + "*********");
     }
 
     public static void setCoverageStructure(String functionNameIn, int noOfBranchesIn, int funcId) {
         functionName = functionNameIn;
         noOfBranchesArray[funcId] = noOfBranchesIn;
-        System.out.println("*********Now covering: " + functionName + "*********");
+        System.out.println("\n\n\n*********Now covering: " + functionName + "*********");
     }
 
     public static int addBranch(int id) {
@@ -44,10 +61,6 @@ public class CoverageStructure {
 
     public static void printBranches() {
         System.out.printf("Reached %d out of %d branches.\n", branches.size(), noOfBranches);
-        if(noOfBranches != 0)
-            System.out.println("Coverage: " + (branches.size()/noOfBranches) + "%\n");
-        else
-            System.out.println("No Branches");
         System.out.println("===Showing reached branches===");
         for(Integer id : branches)
             System.out.printf("Branch id %d reached.\n", id);
@@ -65,10 +78,6 @@ public class CoverageStructure {
                 count++;
         }
         System.out.printf("Reached %d out of %d branches.\n", count, noOfBranchesArray[funcId]);
-        if(noOfBranches != 0)
-            System.out.println("Coverage: " + (count/noOfBranchesArray[funcId]) + "%\n");
-        else
-            System.out.println("No Branches");
         System.out.println("===Showing reached branches===");
         for(int i = 1; i<noOfBranchesArray[funcId]+1; i++){
             if(branchesArray[funcId][i] == 1)

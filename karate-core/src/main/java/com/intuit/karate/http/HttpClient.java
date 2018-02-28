@@ -109,14 +109,60 @@ public abstract class HttpClient<T> {
             return getEntity(body.getAsString(), mediaType);
         }
     }
-
-    private T buildRequestInternal(HttpRequestBuilder request, ScriptContext context) {
-        String method = request.getMethod();
+    private T buildMethodBody(HttpRequestBuilder request, ScriptContext context, boolean methodRequiresBody, String method) {
+        if (methodRequiresBody) {
+            String mediaType = request.getContentType();
+            if (request.getMultiPartItems() != null) {
+                if (mediaType == null) {
+                    mediaType = MULTIPART_FORM_DATA;
+                }
+                return getEntity(request.getMultiPartItems(), mediaType);
+            } else if (request.getFormFields() != null) {
+                if (mediaType == null) {
+                    mediaType = APPLICATION_FORM_URLENCODED;
+                }
+                return getEntity(request.getFormFields(), mediaType);
+            } else {
+                ScriptValue body = request.getBody();
+                if ((body == null || body.isNull())) {
+                    if ("DELETE".equals(method)) {
+                        return null; // traditional DELETE, we also support using a request body for DELETE
+                    } else {
+                        String msg = "request body is required for a " + method + ", please use the 'request' keyword";
+                        throw new RuntimeException(msg);
+                    }
+                }
+                if (context.isLogPrettyRequest()) {
+                    context.logger.info("request:\n{}", body.getAsPrettyString());
+                }
+                return getEntityInternal(body, mediaType);
+            }
+        } else {
+            return null;
+        }
+    }
+    private boolean buildRequestInternalInputCheck(ScriptContext context, String method, String url){
         if (method == null) {
             String msg = "'method' is required to make an http call";
             context.logger.error(msg);
             throw new RuntimeException(msg);
         }
+        if (url == null) {
+            String msg = "url not set, please refer to the keyword documentation for 'url'";
+            context.logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return true;
+    }
+    private T buildRequestInternal(HttpRequestBuilder request, ScriptContext context) {
+        String method = request.getMethod();
+        /*
+        if (method == null) {
+            String msg = "'method' is required to make an http call";
+            context.logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+        */
         method = method.toUpperCase();
         request.setMethod(method);
         this.request = request;
@@ -126,11 +172,15 @@ public abstract class HttpClient<T> {
                 || "PATCH".equals(method)
                 || "DELETE".equals(method);
         String url = request.getUrl();
+
+        buildRequestInternalInputCheck(context, method, url);
+        /*
         if (url == null) {
             String msg = "url not set, please refer to the keyword documentation for 'url'";
             context.logger.error(msg);
             throw new RuntimeException(msg);
         }
+        */
         buildUrl(url);
         if (request.getPaths() != null) {
             for (String path : request.getPaths()) {
@@ -172,36 +222,7 @@ public abstract class HttpClient<T> {
         for (Cookie cookie : Cookie.toCookies(configCookies)) {
             buildCookie(cookie);
         }
-        if (methodRequiresBody) {
-            String mediaType = request.getContentType();
-            if (request.getMultiPartItems() != null) {
-                if (mediaType == null) {
-                    mediaType = MULTIPART_FORM_DATA;
-                }
-                return getEntity(request.getMultiPartItems(), mediaType);
-            } else if (request.getFormFields() != null) {
-                if (mediaType == null) {
-                    mediaType = APPLICATION_FORM_URLENCODED;
-                }
-                return getEntity(request.getFormFields(), mediaType);
-            } else {
-                ScriptValue body = request.getBody();
-                if ((body == null || body.isNull())) {
-                    if ("DELETE".equals(method)) {
-                        return null; // traditional DELETE, we also support using a request body for DELETE
-                    } else {
-                        String msg = "request body is required for a " + method + ", please use the 'request' keyword";
-                        throw new RuntimeException(msg);
-                    }
-                }
-                if (context.isLogPrettyRequest()) {
-                    context.logger.info("request:\n{}", body.getAsPrettyString());
-                }
-                return getEntityInternal(body, mediaType);
-            }
-        } else {
-            return null;
-        }
+        return buildMethodBody(request, context, methodRequiresBody, method);
     }
 
     protected static long getResponseTime(long startTime) {

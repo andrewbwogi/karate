@@ -706,7 +706,7 @@ public class Script {
     private static String stripParentheses(String s) {
         return StringUtils.trimToEmpty(s.substring(1, s.length() - 1));
     }
-
+     
     public static AssertionResult matchStringOrPattern(char delimiter, String path, MatchType stringMatchType,
             Object actRoot, Object actParent, ScriptValue actValue, String expected, ScriptContext context) {
         if (expected == null) {
@@ -994,7 +994,41 @@ public class Script {
                 throw new RuntimeException("unexpected outer match type: " + outerMatchType);
         }
     }
-
+    private static AssertionResult matchInputStream(MatchType matchType, ScriptValue actual, String path, String expression, ScriptContext context) {
+        String actualString = actual.getAsString();
+                ScriptValue expectedString = evalKarateExpression(expression, context);
+                // exit the function early
+                if (!expectedString.isStringOrStream()) {
+                    return matchFailed(matchType, path, actualString, expectedString.getValue(),
+                            "type of actual value is 'string' but that of expected is " + expectedString.getType());
+                } else {
+                    return matchStringOrPattern('.', path, matchType, null, null, actual, expectedString.getAsString(), context);
+                }
+    }
+    private static AssertionResult matchJsonOrObjectPrimitive(MatchType matchType, ScriptValue actual, String path, String expression, ScriptContext context) {
+        ScriptValue expected = evalKarateExpression(expression, context);
+                if (expected.isStringOrStream()) { // fuzzy match macro
+                    return matchStringOrPattern('.', path, matchType, null, null, actual, expected.getAsString(), context);
+                } else {
+                    return matchPrimitive(matchType, path, actual.getValue(), expected.getValue());
+                }
+    }
+    private static AssertionResult matchJsonOrObjectNull(MatchType matchType, ScriptValue actual, String path, String expression, ScriptContext context) {
+        ScriptValue expectedNull = evalKarateExpression(expression, context);
+                if (expectedNull.isNull()) {
+                    if (matchType == MatchType.NOT_EQUALS) {
+                        return matchFailed(matchType, path, null, null, "actual and expected values are both null");
+                    }
+                    return AssertionResult.PASS;
+                } else if (!expectedNull.isStringOrStream()) { // primitive or anything which is not a string
+                    if (matchType == MatchType.NOT_EQUALS) {
+                        return AssertionResult.PASS;
+                    }
+                    return matchFailed(matchType, path, null, expectedNull.getValue(), "actual value is null but expected is " + expectedNull);
+                } else {
+                    return matchStringOrPattern('.', path, matchType, null, null, actual, expectedNull.getAsString(), context);
+                }
+    }
     public static AssertionResult matchJsonOrObject(MatchType matchType, ScriptValue actual, String path, String expression, ScriptContext context) {
         DocumentContext actualDoc;
         switch (actual.getType()) {
@@ -1162,6 +1196,7 @@ public class Script {
                 path, quoteIfString(actObject), isNegation(matchType) ? "NOT " : "", quoteIfString(expObject), reason);
         return AssertionResult.fail(message);
     }
+
     private static AssertionResult matchNestedObjectNull(char delimiter, String path, MatchType matchType,
             Object actRoot, Object actParent, Object actObject, Object expObject, ScriptContext context) {
         if (actObject != null) {
